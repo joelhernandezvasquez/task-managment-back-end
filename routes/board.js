@@ -1,7 +1,7 @@
 const {Router} = require('express');
 const router = Router();
 const {check} = require("express-validator");
-const {createBoard,getBoardNames,deleteBoard,getBoard} = require("../controllers/board");
+const {createBoard,getBoardNames,deleteBoard,getBoard,updateBoard} = require("../controllers/board");
 const { fieldValidator } = require('../middlewares/fieldValidator');
 const {validateJWT} = require('../middlewares/validateJWT');
 
@@ -37,6 +37,16 @@ router.post
  getBoardNames
  );
 
+ router.put
+ (
+  '/:id',
+  [
+    check('name','name cannot be empty').not().isEmpty(),
+    check('columns','columns cannot be empty').isLength({min:1}),
+    fieldValidator
+  ],
+ updateBoard
+ );
  router.delete('/:id',deleteBoard);
 
 

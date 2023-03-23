@@ -83,6 +83,41 @@ const createBoard = async (req,res = response) =>{
  }
 }
 
+const updateBoard = async (req,res=response) =>{
+   
+  const boardId = req.params.id;
+
+  try{
+     const board = await Board.findById(boardId);
+
+     if(!board){
+      return res.status(404).json({
+        success:false,
+        message:'Board not found'
+      })
+     }
+
+     const newBoard = {...req.body};
+
+     const updateBoard = await Board.findByIdAndUpdate(boardId,newBoard,{new:true});
+
+     return res.status(201).json({
+      success:true,
+      board:updateBoard
+     })
+  }
+  catch(error){
+     console.error(error);
+     return res.status(500).json({
+      success:false,
+      message:'Please contact administrator..'
+     })
+  }
+  
+  // return res.status(200).json({
+  //   ok:true
+  //  })
+}
 
  const deleteBoard = async (req,res = response) =>{
   const boardId = req.params.id;
@@ -126,5 +161,6 @@ const createBoard = async (req,res = response) =>{
    createBoard,
    getBoardNames,
    getBoard,
+   updateBoard,
    deleteBoard,
   }
