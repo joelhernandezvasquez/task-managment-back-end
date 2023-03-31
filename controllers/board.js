@@ -83,6 +83,56 @@ const createBoard = async (req,res = response) =>{
  }
 }
 
+const addTask = async (req,res=response) =>{
+    
+    const {boardId,userId,name,description,substasks,status} = req.body;
+   
+    try{
+      const board = await Board.findById(boardId);
+
+      if(!board){
+        return res.status(404).json({
+          ok:false,
+          message:'Board not found'
+        })
+      }
+
+      if(board.user.toString() !== userId){
+        return res.status(401).json({
+          ok:false,
+          msg:'you are not allowed to add task to this board'
+       })
+
+      }
+
+      const newTask = {name,description,substasks,status};
+      const tasks = [...board.tasks,newTask];
+
+      const newBoard = {
+        _id:board._id,
+        name:board.name,
+        columns:board.columns,
+        user:board.user,
+        tasks:tasks
+      }
+    
+      await Board.findByIdAndUpdate(boardId,newBoard,{new:true});
+     
+      return res.status(201).json({
+      success:true,
+   })
+    }
+    catch(error){
+      console.error(error);
+      return res.status(500).json({
+        success:false,
+        message:'Please contact administrator..'
+       })
+    }
+
+  }
+
+
 const updateBoard = async (req,res=response) =>{
    
   const boardId = req.params.id;
@@ -99,11 +149,10 @@ const updateBoard = async (req,res=response) =>{
 
      const newBoard = {...req.body};
 
-     const updateBoard = await Board.findByIdAndUpdate(boardId,newBoard,{new:true});
+     await Board.findByIdAndUpdate(boardId,newBoard,{new:true});
 
      return res.status(201).json({
-      success:true,
-      board:updateBoard
+      success:true
      })
   }
   catch(error){
@@ -114,9 +163,6 @@ const updateBoard = async (req,res=response) =>{
      })
   }
   
-  // return res.status(200).json({
-  //   ok:true
-  //  })
 }
 
  const deleteBoard = async (req,res = response) =>{
@@ -163,4 +209,5 @@ const updateBoard = async (req,res=response) =>{
    getBoard,
    updateBoard,
    deleteBoard,
+   addTask
   }

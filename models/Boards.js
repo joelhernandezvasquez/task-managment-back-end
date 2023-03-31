@@ -11,17 +11,29 @@ const BoardSchema = Schema({
      required:true,
     },
 
+    tasks:[
+        {
+            name:{
+                type:String
+            },
+            description:{
+                type:String
+            },
+            substasks:{
+                type:[String]
+            },
+            status:{
+                type:String
+            }
+        }
+    ]
+      
+    ,
+
      user:{
         type:String,
         required:true
      }
-
-    // user:{
-    //     type:Schema.Types.ObjectId,
-    //     ref:'User',
-    //     required:true
-    // }
-   
 
 })
 
