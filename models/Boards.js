@@ -19,9 +19,18 @@ const BoardSchema = Schema({
             description:{
                 type:String
             },
-            substasks:{
-                type:[String]
-            },
+            substasks:[{
+            
+                name: {
+                  type: String,
+                  require:true
+                },
+                complete: {
+                  type: Boolean,
+                  require:true
+                }
+              }]
+               ,
             status:{
                 type:String
             }

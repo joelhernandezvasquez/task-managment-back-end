@@ -1,7 +1,7 @@
 const {Router} = require('express');
 const router = Router();
 const {check} = require("express-validator");
-const {createBoard,getBoardNames,deleteBoard,getBoard,updateBoard,addTask} = require("../controllers/board");
+const {createBoard,getBoardNames,deleteBoard,getBoard,updateBoard,addTask,updateSubstasks} = require("../controllers/board");
 const { fieldValidator } = require('../middlewares/fieldValidator');
 const {validateJWT} = require('../middlewares/validateJWT');
 
@@ -37,7 +37,19 @@ router.post
  getBoardNames
  );
 
- router.post('/create/task',addTask)
+ router.post('/create/task',
+ [
+   check('boardId','ID of the board is required').not().isEmpty(),
+   check('userId','user ID is required').not().isEmpty(),
+   check('name','name is required').not().isEmpty(),
+   check('description','description is required').not().isEmpty(),
+   check('substasks','substasks cannot be empty').isLength({min:1}),
+   check('status','status is required').not().isEmpty(),
+   fieldValidator
+
+ ],
+ addTask
+ )
 
  router.put
  (
@@ -52,6 +64,15 @@ router.post
  router.delete('/:id',deleteBoard);
 
  
+ router.put(
+  '/substask/:id',
+  [
+   check('taskId', 'taskId is required').not().isEmpty(),
+   check('substask','substask is required').not().isEmpty(),
+   fieldValidator
+  ],
+  
+  updateSubstasks);
 
 
 module.exports = router;

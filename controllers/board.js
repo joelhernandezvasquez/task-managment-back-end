@@ -66,10 +66,12 @@ const createBoard = async (req,res = response) =>{
   
   try{
     const board = await Board.findById(boardId);
+
     return res.status(200).json({
       ok:true,
       name:board.name,
-      columns:board.columns
+      columns:board.columns,
+      tasks:board.tasks
     })
     
   }
@@ -201,6 +203,54 @@ const updateBoard = async (req,res=response) =>{
     }
  }
 
+ const updateSubstasks = async (req,res=response) =>{
+   const boardId = req.params.id;
+   const {taskId,substask} = req.body;
+
+   try{
+     const board = await Board.findById(boardId);
+     
+     if(!board){
+       return res.status(404).json({
+        success:false,
+        message:'Board not found'
+       })
+     }
+   
+      const newTasks = board.tasks.map((task) => {
+       
+        if(task._id.toString() === taskId)
+         {
+           const substasksToUpdate = task.substasks.map((substaskItem)=> substaskItem._id.toString() === substask._id ? substask : substaskItem);
+           const newTask = {
+            name:task.name,
+            description:task.description,
+            substasks:substasksToUpdate,
+            status:task.status,
+            _id:task._id
+           }
+           return newTask;
+         }
+         return task;
+      })
+    
+    await Board.findByIdAndUpdate(boardId,{tasks:newTasks},{ runValidators: true, new: true });
+     
+    return res.status(201).json({
+     success:true
+   })
+
+   }
+   catch(error){
+    console.error(error);
+        res.status(500).json({
+            ok:false,
+            msg:'talk to administrator'
+        })
+   }
+   
+ }
+
 
 
   module.exports = {
@@ -209,5 +259,6 @@ const updateBoard = async (req,res=response) =>{
    getBoard,
    updateBoard,
    deleteBoard,
-   addTask
+   addTask,
+   updateSubstasks
   }
