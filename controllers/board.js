@@ -204,54 +204,103 @@ const updateBoard = async (req,res=response) =>{
  }
 
  const updateSubstasks = async (req,res=response) =>{
-   const boardId = req.params.id;
-   const {taskId,substask} = req.body;
+  const boardId = req.params.id;
+  const {taskId,substask} = req.body;
 
-   try{
-     const board = await Board.findById(boardId);
-     
-     if(!board){
-       return res.status(404).json({
-        success:false,
-        message:'Board not found'
-       })
-     }
-   
-      const newTasks = board.tasks.map((task) => {
-       
-        if(task._id.toString() === taskId)
-         {
-           const substasksToUpdate = task.substasks.map((substaskItem)=> substaskItem._id.toString() === substask._id ? substask : substaskItem);
-           const newTask = {
-            name:task.name,
-            description:task.description,
-            substasks:substasksToUpdate,
-            status:task.status,
-            _id:task._id
-           }
-           return newTask;
-         }
-         return task;
-      })
+  try{
+    const board = await Board.findById(boardId);
     
-    await Board.findByIdAndUpdate(boardId,{tasks:newTasks},{ runValidators: true, new: true });
-     
-    return res.status(201).json({
-     success:true
-   })
-
-   }
-   catch(error){
-    console.error(error);
-        res.status(500).json({
-            ok:false,
-            msg:'talk to administrator'
-        })
-   }
+    if(!board){
+      return res.status(404).json({
+       success:false,
+       message:'Board not found'
+      })
+    }
+  
+     const newTasks = board.tasks.map((task) => {
+      
+       if(task._id.toString() === taskId)
+        {
+          const substasksToUpdate = task.substasks.map((substaskItem)=> substaskItem._id.toString() === substask._id ? substask : substaskItem);
+          const newTask = {
+           name:task.name,
+           description:task.description,
+           substasks:substasksToUpdate,
+           status:task.status,
+           _id:task._id
+          }
+          return newTask;
+        }
+        return task;
+     })
    
- }
+   await Board.findByIdAndUpdate(boardId,{tasks:newTasks},{ runValidators: true, new: true });
+    
+   return res.status(201).json({
+    success:true
+  })
 
+  }
+  catch(error){
+   console.error(error);
+       res.status(500).json({
+           ok:false,
+           msg:'talk to administrator'
+       })
+  }
+  
+}
 
+const deleteTask = async (req,res=response) =>{
+  const boardId = req.params.id;
+  const userId = req.uid;
+  const {taskId} = req.body;
+
+  try{
+    
+    const board = await Board.findById(boardId);
+
+    if(!board){
+      return res.status(404).json({
+        success:false,
+        message:"Board not found"
+      })
+    }
+
+    if(board.user.toString() !== userId){
+      return res.status(401).json({
+        success:false,
+        message:"you are not authorized to delete the task"
+      })
+    }
+    
+    const taskFound =  board.tasks.find((element)=> element._id.toString() === taskId );
+
+    if(!taskFound){
+      return res.status(404).json({
+        success:false,
+        message:"task not found"
+      })
+    }
+
+    const updateTasks = board.tasks.filter((task)=> task._id.toString() !== taskId);
+ 
+    await Board.findByIdAndUpdate(boardId,{tasks:updateTasks},{ runValidators: true, new: true });
+    
+    return res.status(200).json(({
+      success:true,
+      message:'task was deleted succesfully'
+    }))
+  }
+  catch(error){
+    console.error(error);
+       res.status(500).json({
+           ok:false,
+           msg:'talk to administrator'
+       })
+  }
+
+}
 
   module.exports = {
    createBoard,
@@ -260,5 +309,6 @@ const updateBoard = async (req,res=response) =>{
    updateBoard,
    deleteBoard,
    addTask,
-   updateSubstasks
+   updateSubstasks,
+   deleteTask
   }
