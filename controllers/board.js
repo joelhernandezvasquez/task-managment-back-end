@@ -254,7 +254,7 @@ const updateBoard = async (req,res=response) =>{
 const deleteTask = async (req,res=response) =>{
   const boardId = req.params.id;
   const userId = req.uid;
-  const {taskId} = req.body;
+  const taskId = req.query.taskId;
 
   try{
     

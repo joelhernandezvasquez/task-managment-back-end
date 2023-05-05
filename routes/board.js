@@ -65,12 +65,7 @@ router.post
  router.delete('/:id',deleteBoard);
  
  router.delete(
-  '/task/:id',
-  [
-    check('taskId','taskId is required').not().isEmpty(),
-    fieldValidator
-  ],
- deleteTask
+  '/task/:id',deleteTask
  );
 
  
