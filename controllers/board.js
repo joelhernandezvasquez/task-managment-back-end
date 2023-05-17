@@ -302,6 +302,65 @@ const deleteTask = async (req,res=response) =>{
 
 }
 
+const updateTask = async (req,res=response) =>{ 
+ const boardId = req.params.id;
+ const {_id:taskId} = req.body;
+ const userId = req.uid;
+
+ try{
+
+    const board = await Board.findById(boardId);
+
+    if(!board){
+      return res.status(404).json({
+        success:false,
+        message:'board not found'
+      })
+    }
+    if(board.user.toString() !== userId){
+      return res.status(401).json({
+        success:false,
+        message:"you are not authorized to update the task"
+      })
+    }
+
+    const taskFound = board.tasks.find((currentTask)=> currentTask._id.toString() === taskId)
+   
+    if(!taskFound){
+      return res.status(404).json({
+        success:false,
+        message:"task not found"
+      })
+    }
+    
+    const updatedTasks = board.tasks.map((task)=>{
+     
+      if(task._id.toString() === taskId){
+        return{
+          ...req.body
+        }
+      }
+      return task;
+    })
+
+      await Board.findByIdAndUpdate(boardId,{tasks:updatedTasks},{ runValidators: true, new: true });
+
+    return res.status(200).json(({
+      success:true,
+      message:'task was updated succesfully'
+    }))
+ }
+ catch(error) {
+  console.error(error);
+       res.status(500).json({
+           ok:false,
+           msg:'talk to administrator'
+       })
+  }
+ 
+ 
+}
+
   module.exports = {
    createBoard,
    getBoardNames,
@@ -310,5 +369,6 @@ const deleteTask = async (req,res=response) =>{
    deleteBoard,
    addTask,
    updateSubstasks,
-   deleteTask
+   deleteTask,
+   updateTask
   }
