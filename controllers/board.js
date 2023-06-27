@@ -6,6 +6,7 @@ const createBoard = async (req,res = response) =>{
     try{
       const board = new Board(req.body);
       const saveBoard =  await board.save();
+    
       
      return res.status(200).json({
        ok:true,
@@ -27,6 +28,33 @@ const createBoard = async (req,res = response) =>{
         })
     }
 
+ }
+
+ const getBoards = async (req,res=response) =>{
+  const userId = req.uid;
+
+  try{
+    const boards = await Board.find({user:userId}).exec()
+
+    if(!boards){
+      return res.json(({
+        success:false,
+        msg:'No boards were found.'
+      }))
+    }
+    return res.json(({
+      success:true,
+      boards:boards
+    }))
+  }
+
+  catch(error){
+  console.log(error);
+  return res.status(500).json({
+    ok:false,
+    msg:'Please contact admin',
+})
+  }
  }
 
  const getBoardNames = async (req,res = response) =>{
@@ -63,6 +91,7 @@ const createBoard = async (req,res = response) =>{
  const getBoard = async (req,res=response) =>{
    
   const {id:boardId} = req.body;
+ 
   
   try{
     const board = await Board.findById(boardId);
@@ -148,6 +177,8 @@ const updateBoard = async (req,res=response) =>{
         message:'Board not found'
       })
      }
+
+
 
      const newBoard = {...req.body};
 
@@ -361,6 +392,12 @@ const updateTask = async (req,res=response) =>{
  
 }
 
+
+
+
+
+
+
   module.exports = {
    createBoard,
    getBoardNames,
@@ -370,5 +407,6 @@ const updateTask = async (req,res=response) =>{
    addTask,
    updateSubstasks,
    deleteTask,
-   updateTask
+   updateTask,
+   getBoards
   }

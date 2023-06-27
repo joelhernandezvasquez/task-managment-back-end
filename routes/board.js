@@ -1,11 +1,13 @@
 const {Router} = require('express');
 const router = Router();
 const {check} = require("express-validator");
-const {createBoard,getBoardNames,deleteBoard,getBoard,updateBoard,addTask,updateSubstasks,deleteTask,updateTask} = require("../controllers/board");
+const {createBoard,getBoards,getBoardNames,deleteBoard,getBoard,updateBoard,addTask,updateSubstasks,deleteTask,updateTask} = require("../controllers/board");
 const { fieldValidator } = require('../middlewares/fieldValidator');
 const {validateJWT} = require('../middlewares/validateJWT');
 
 router.use(validateJWT);
+
+router.get('/getBoards',getBoards);
 
 router.post(
       '/getBoard',
